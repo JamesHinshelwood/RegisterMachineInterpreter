@@ -26,15 +26,35 @@ void print_instruction(Instruction instruction, int label)
     }
 }
 
+void print_registers(int registersc, int registersv[])
+{
+    printf("--------------------\nRegisters:\n");
+    for(int i = 0; i < registersc; i++)
+    {
+        printf("R%u : %u", i, registersv[i]);
+        if(i != registersc - 1)
+            printf(", ");
+    }
+    printf("\n--------------------\n");
+}
+
+void print_instructions(int instructionsc, Instruction instructionsv[])
+{
+    printf("--------------------\nInstructions:\n");
+    for(int i = 0; i < instructionsc; i++)
+    {
+        print_instruction(instructionsv[i], i);
+    }
+    printf("--------------------\n");
+}
+
 //Returns address of next instruction, -1 if a proper halt occurs, -2 if an out of bounds register is accessed
-int step(int registersc, int registersv[], int label, Instruction instructions[], int trace)
+int step(int registersc, int registersv[], int label, Instruction instructions[], int verbose)
 {
     Instruction current_instruction = instructions[label];
     
-    if(trace)
-    {
+    if(verbose)
         print_instruction(current_instruction, label);
-    }
     
     if(current_instruction.type == Inc)
     {
@@ -83,13 +103,13 @@ int step(int registersc, int registersv[], int label, Instruction instructions[]
     }
 }
 
-void run(int registersc, int registersv[], int instructionsc, Instruction instructionsv[], int trace)
+void run(int registersc, int registersv[], int instructionsc, Instruction instructionsv[], int verbose)
 {
     unsigned int label = 0;
     
     while(1)
     {
-        label = step(registersc, registersv, label, instructionsv, trace);
+        label = step(registersc, registersv, label, instructionsv, verbose);
         if(label == -2) //Register out of bounds
         {
             fprintf(stderr, "Register out of bounds, halting\n");
@@ -125,27 +145,13 @@ int main(int argc, char *argv[])
     Instruction* instructionsv;
     int instructionsc = parse_stdin(&instructionsv);
     
-    printf("Instructions:\n");
-    for(int i = 0; i < instructionsc; i++)
-    {
-        print_instruction(instructionsv[i], i);
-    }
+    print_instructions(instructionsc, instructionsv);
     
-    printf("Register starting state:\n");
-    for(int i = 0; i < registersc; i++)
-    {
-        printf("R%u : %u, ", i, registersv[i]);
-    }
-    printf("\n");
+    print_registers(registersc, registersv);
     
     run(registersc, registersv, instructionsc, instructionsv, 1);
     
-    printf("Register ending state:\n");
-    for(int i = 0; i < registersc; i++)
-    {
-        printf("R%u : %u, ", i, registersv[i]);
-    }
-    printf("\n");
+    print_registers(registersc, registersv);
     
     free(instructionsv);
     
