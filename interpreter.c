@@ -1,74 +1,60 @@
 #include <stdio.h>
-#include <string.h>
 #include <stdlib.h>
+#include <string.h>
+#include "instructions.h"
+#include "parser.h"
 
-typedef struct increment_instruction_t
+void print_instruction(Instruction instruction, int label)
 {
-    unsigned int reg;
-    unsigned int jmp_lbl;
-} IncrementInstruction;
-
-typedef struct decrement_instruction_t
-{
-    unsigned int reg;
-    unsigned int jmp_lbl_not_zero;
-    unsigned int jmp_lbl_zero;
-} DecrementInstruction;
-
-typedef struct halt_instruction_t
-{
-
-} HaltInstruction;
-
-typedef enum instruction_type_e
-{
-    Inc,
-    Dec,
-    Halt
-} InstructionType;
-
-typedef struct instruction_t
-{
-    InstructionType type;
-    union instruction_u
+    if(instruction.type == Inc)
     {
-        IncrementInstruction inc;
-        DecrementInstruction dec;
-        HaltInstruction halt;
-    } instruction;
-} Instruction;
+        IncrementInstruction inc = instruction.instruction.inc;
+        printf("L%u : R%u+ -> L%u\n", label, inc.reg, inc.jmp_lbl);
+    }
+    else if(instruction.type == Dec)
+    {
+        DecrementInstruction dec = instruction.instruction.dec;
+        printf("L%u : R%u- -> L%u,L%u\n", label, dec.reg, dec.jmp_lbl_not_zero, dec.jmp_lbl_zero);
+    }
+    else if(instruction.type == Halt)
+    {
+        printf("L%u : HALT\n", label);
+    }
+    else
+    {
+        //Unrecognised
+    }
+}
 
-//Returns address of next instruction, or -1 if a proper halt occurs
+//Returns address of next instruction, -1 if a proper halt occurs, -2 if an out of bounds register is accessed
 int step(int registersc, int registersv[], int label, Instruction instructions[], int trace)
 {
     Instruction current_instruction = instructions[label];
     
+    if(trace)
+    {
+        print_instruction(current_instruction, label);
+    }
+    
     if(current_instruction.type == Inc)
     {
         IncrementInstruction inc = current_instruction.instruction.inc;
-        if(trace)
-        {
-            printf("L%u : R%u+ -> L%u\n", label, inc.reg, inc.jmp_lbl);
-        }
         
         if(inc.reg < registersc)
         {
             registersv[inc.reg]++;
+            return inc.jmp_lbl;
         }
         else
         {
             //error : register out of bounds
-        }
-        return inc.jmp_lbl;        
+            return -2;
+        }       
     }
     else if(current_instruction.type == Dec)
     {
         DecrementInstruction dec = current_instruction.instruction.dec;
-        if(trace)
-        {
-            printf("L%u : R%u- -> L%u,L%u\n", label, dec.reg, dec.jmp_lbl_not_zero, dec.jmp_lbl_zero);
-        }
-        
+
         if(dec.reg < registersc)
         {
             if(registersv[dec.reg] > 0)
@@ -84,15 +70,16 @@ int step(int registersc, int registersv[], int label, Instruction instructions[]
         else
         {
             //error : register out of bounds
+            return -2;
         }
     }
     else if(current_instruction.type == Halt)
     {
-        if(trace)
-        {
-            printf("L%u : HALT\n", label);
-        }
         return -1;
+    }
+    else
+    {
+        return -3; //Unrecognised instruction (should never happen)
     }
 }
 
@@ -103,6 +90,11 @@ void run(int registersc, int registersv[], int instructionsc, Instruction instru
     while(1)
     {
         label = step(registersc, registersv, label, instructionsv, trace);
+        if(label == -2) //Register out of bounds
+        {
+            fprintf(stderr, "Register out of bounds, halting");
+            return;
+        }
         if(label == -1) //Proper halt
         {
             printf("Proper halt occured\n");
@@ -118,26 +110,14 @@ void run(int registersc, int registersv[], int instructionsc, Instruction instru
 
 int main(int argc, char *argv[])
 {
-    char *line = NULL;
-    size_t len = 0;
-    ssize_t read;
+    Instruction* instructionsv;
+    int instructionsc = parse_stdin(&instructionsv);
     
-    //while((read = getline(&line, &len, stdin)) != -1)
-    //{
-    //    printf("Line of length %zu : ", read);
-    //    printf("%s", line);
-    //}
-    
-    //free(line);
-    
-    Instruction instructions[] = 
+    printf("Instructions:\n");
+    for(int i = 0; i < instructionsc; i++)
     {
-        { .type=Dec, .instruction= { .dec= { .reg = 1, .jmp_lbl_not_zero = 1, .jmp_lbl_zero = 2 } } },
-        { .type=Inc, .instruction= { .inc= { .reg = 0, .jmp_lbl = 0 } } },
-        { .type=Dec, .instruction= { .dec= { .reg = 2, .jmp_lbl_not_zero = 3, .jmp_lbl_zero = 4 } } },
-        { .type=Inc, .instruction= { .inc= { .reg = 0, .jmp_lbl = 2 } } },
-        { .type=Halt, .instruction= { .halt= {  } } }
-    };
+        print_instruction(instructionsv[i], i);
+    }
     
     int registers[] = { 0, 1, 2 };
     
@@ -148,7 +128,7 @@ int main(int argc, char *argv[])
     }
     printf("\n");
     
-    run(3, registers, 5, instructions, 1);
+    run(3, registers, instructionsc, instructionsv, 1);
     
     printf("Register ending state:\n");
     for(int i = 0; i < 3; i++)
@@ -156,6 +136,8 @@ int main(int argc, char *argv[])
         printf("R%u : %u, ", i, registers[i]);
     }
     printf("\n");
+    
+    free(instructionsv);
     
     return 0;
 }
