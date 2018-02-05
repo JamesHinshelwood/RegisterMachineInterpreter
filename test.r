@@ -1,0 +1,5 @@
+DEC 1 1 2
+INC 0 0
+DEC 2 3 4
+INC 0 2
+HALT
