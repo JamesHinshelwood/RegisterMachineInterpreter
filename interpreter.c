@@ -92,7 +92,7 @@ void run(int registersc, int registersv[], int instructionsc, Instruction instru
         label = step(registersc, registersv, label, instructionsv, trace);
         if(label == -2) //Register out of bounds
         {
-            fprintf(stderr, "Register out of bounds, halting");
+            fprintf(stderr, "Register out of bounds, halting\n");
             return;
         }
         if(label == -1) //Proper halt
@@ -110,6 +110,18 @@ void run(int registersc, int registersv[], int instructionsc, Instruction instru
 
 int main(int argc, char *argv[])
 {
+    int registersc = argc - 1;
+    if(registersc == 0)
+    {
+        fprintf(stderr, "No registers specified in program arguments\n");
+        return 1;
+    }
+    int registersv[registersc];
+    for(int i = 0; i < registersc; i++)
+    {
+        registersv[i] = atoi(argv[i+1]);
+    }
+    
     Instruction* instructionsv;
     int instructionsc = parse_stdin(&instructionsv);
     
@@ -119,21 +131,19 @@ int main(int argc, char *argv[])
         print_instruction(instructionsv[i], i);
     }
     
-    int registers[] = { 0, 1, 2 };
-    
     printf("Register starting state:\n");
-    for(int i = 0; i < 3; i++)
+    for(int i = 0; i < registersc; i++)
     {
-        printf("R%u : %u, ", i, registers[i]);
+        printf("R%u : %u, ", i, registersv[i]);
     }
     printf("\n");
     
-    run(3, registers, instructionsc, instructionsv, 1);
+    run(registersc, registersv, instructionsc, instructionsv, 1);
     
     printf("Register ending state:\n");
-    for(int i = 0; i < 3; i++)
+    for(int i = 0; i < registersc; i++)
     {
-        printf("R%u : %u, ", i, registers[i]);
+        printf("R%u : %u, ", i, registersv[i]);
     }
     printf("\n");
     
