@@ -1,6 +1,8 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <unistd.h>
+#include <ctype.h>
 #include "instructions.h"
 #include "parser.h"
 
@@ -130,7 +132,24 @@ void run(int registersc, int registersv[], int instructionsc, Instruction instru
 
 int main(int argc, char *argv[])
 {
-    int registersc = argc - 1;
+    int verbose = 0;    
+    
+    int c;
+    while((c = getopt(argc, argv, "v")) != -1)
+    {
+        switch(c)
+        {
+            case 'v':
+                verbose = 1;
+                break;
+            case '?':
+                return 1;
+            default:
+                abort();
+        }
+    }
+
+    int registersc = argc - optind;
     if(registersc == 0)
     {
         fprintf(stderr, "No registers specified in program arguments\n");
@@ -139,7 +158,7 @@ int main(int argc, char *argv[])
     int registersv[registersc];
     for(int i = 0; i < registersc; i++)
     {
-        registersv[i] = atoi(argv[i+1]);
+        registersv[i] = atoi(argv[optind+i]);
     }
     
     Instruction* instructionsv;
@@ -149,7 +168,7 @@ int main(int argc, char *argv[])
     
     print_registers(registersc, registersv);
     
-    run(registersc, registersv, instructionsc, instructionsv, 1);
+    run(registersc, registersv, instructionsc, instructionsv, verbose);
     
     print_registers(registersc, registersv);
     
