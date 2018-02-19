@@ -21,7 +21,7 @@ int array_add(InstructionArray* a, Instruction i)
     if(a->used == a->size)
     {
         a->size *= 2;
-        a->array = realloc(a, a->size * sizeof(Instruction));
+        a->array = realloc(a->array, a->size * sizeof(Instruction));
         if(a->array == NULL)
         {
             fprintf(stderr, "Resizing instruction array failed");

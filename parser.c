@@ -59,7 +59,7 @@ int parse_stdin(Instruction* instructions[])
 {
     InstructionArray array;
     
-    if(array_init(&array, 8) != 0)
+    if(array_init(&array, 1) != 0)
         return -1;
     
     char* line = NULL;
