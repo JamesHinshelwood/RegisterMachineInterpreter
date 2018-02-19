@@ -400,6 +400,19 @@ void bignum_mod(struct bn* a, struct bn* b, struct bn* c)
 }
 
 
+void bignum_not(struct bn* a, struct bn* b)
+{
+  require(a, "a is null");
+  require(b, "b is null");
+  
+  int i;
+  for (i = 0; i < BN_ARRAY_SIZE; ++i)
+  {
+    b->array[i] = ~(a->array[i]);
+  }
+}
+
+
 void bignum_and(struct bn* a, struct bn* b, struct bn* c)
 {
   require(a, "a is null");

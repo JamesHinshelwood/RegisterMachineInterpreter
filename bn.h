@@ -101,6 +101,7 @@ void bignum_div(struct bn* a, struct bn* b, struct bn* c); /* c = a / b */
 void bignum_mod(struct bn* a, struct bn* b, struct bn* c); /* c = a % b */
 
 /* Bitwise operations: */
+void bignum_not(struct bn* a, struct bn* b);               /* b = ~a */
 void bignum_and(struct bn* a, struct bn* b, struct bn* c); /* c = a & b */
 void bignum_or(struct bn* a, struct bn* b, struct bn* c);  /* c = a | b */
 void bignum_xor(struct bn* a, struct bn* b, struct bn* c); /* c = a ^ b */
