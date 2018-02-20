@@ -69,7 +69,7 @@ int parse_stdin(Instruction* instructions[])
     while((read = getline(&line, &len, stdin)) != -1)
     {
         //Remove trailing \n from line
-        line[strlen(line)-1] = '\0';
+        line[read-1] = '\0';
         
         Instruction instruction;
         parse_line(line, &instruction);
