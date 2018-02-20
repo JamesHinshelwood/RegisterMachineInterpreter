@@ -1,17 +1,27 @@
-# Register Machine Interpreter
+# Register Machine Interpreter and Packer
 Register machine interpreter written in C
+Register machines and packed integer form are implemented as described [here](http://www.cl.cam.ac.uk/teaching/1718/CompTheory/CompTheory.pdf).
 
-#### Compiling
+### Compiling
 
 Can be compiled with `make`. You might have to change the compiler in `Makefile`.
 
-#### Running
+### Running
+
+#### Interpreter
 
 `interpreter` reads a program from stdin, and takes initial register values as arguments.
 
 For example, `cat add.r | ./interpreter 0 7 8`, will run a register machine that computes R0=R1+R2=7+8.
 
-#### Register Machine Programs
+#### Packer
+
+`packer [-p|-u]` packs or unpacks a program from stdin and outputs the result. `-p` converts from a normal program to a packed integer. `-u` converts from a packed integer into a program.
+
+For example, `cat add.r | ./packer -p` will convert the add program into an integer representation of it.  
+`cat add.r | ./packer -p | ./packer -u | ./interpreter 0 81 129` will convert add to an integer and back again, then run the program.
+
+### Register Machine Programs
 
 The syntax of register programs is from [here](https://github.com/SophieDurrant/RegisterMachineSimulator). Thank you 🙂
 
