@@ -155,7 +155,13 @@ int main(int argc, char *argv[])
         fprintf(stderr, "No registers specified in program arguments\n");
         return 1;
     }
-    int registersv[registersc];
+    int r[registersc + 5]; // 5 spare registers for scratch space
+    int* registersv = r;
+    registersv += 5;
+    for(int i = 0; i < 5; i++)
+    {
+        registersv[0-i] = 0;
+    }
     for(int i = 0; i < registersc; i++)
     {
         registersv[i] = atoi(argv[optind+i]);
