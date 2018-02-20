@@ -1,5 +1,5 @@
 # Register Machine Interpreter and Packer
-Register machine interpreter written in C
+Register machine interpreter written in C.  
 Register machines and packed integer form are implemented as described [here](http://www.cl.cam.ac.uk/teaching/1718/CompTheory/CompTheory.pdf).
 
 ### Compiling
