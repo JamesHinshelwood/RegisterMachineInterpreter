@@ -132,7 +132,7 @@ void run(int registersc, int registersv[], int instructionsc, Instruction instru
 
 int main(int argc, char *argv[])
 {
-    int verbose = 0;    
+    int verbose = 0;
     
     int c;
     while((c = getopt(argc, argv, "v")) != -1)

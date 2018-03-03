@@ -1,5 +1,6 @@
 #ifndef INSTRUCTIONS_H
 #define INSTRUCTIONS_H
+
 typedef struct
 {
     unsigned int reg;
@@ -35,4 +36,7 @@ typedef struct
         HaltInstruction halt;
     } instruction;
 } Instruction;
+
+void instruction_to_string(const Instruction instruction);
+
 #endif

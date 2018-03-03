@@ -76,7 +76,6 @@ void un_pair_minus_one(mpz_t_pair* result, const mpz_t pair)
     
     mpz_clear(p);
 }
-  
 
 void list_cons(mpz_t result, const mpz_t head, const mpz_t tail)
 {
@@ -88,7 +87,7 @@ void list_split(mpz_t_pair* result, const mpz_t list)
     un_pair(result, list);
 }
 
-void prog_to_num(const int instructionsc, const Instruction* instructionsv, mpz_t result)
+void encode_prog(mpz_t result, const int instructionsc, const Instruction* instructionsv)
 {
     mpz_set_ui(result, 0);
     
@@ -147,7 +146,7 @@ void prog_to_num(const int instructionsc, const Instruction* instructionsv, mpz_
     }
 }
 
-Instruction decode_body(mpz_t body)
+Instruction decode_instruction(const mpz_t body)
 {
     Instruction instruction;
 
@@ -197,7 +196,7 @@ Instruction decode_body(mpz_t body)
     return instruction;
 }
 
-int num_to_prog(Instruction* instructions[], mpz_t num)
+int decode_prog(Instruction* prog[], const mpz_t num)
 {
     InstructionArray array;
     
@@ -217,11 +216,11 @@ int num_to_prog(Instruction* instructions[], mpz_t num)
         mpz_set(body, pair.first);
         mpz_set(rest, pair.second);
         
-        if(array_add(&array, decode_body(body)) != 0)
+        if(array_add(&array, decode_instruction(body)) != 0)
             return -1;
     }
     
-    *instructions = array.array;
+    *prog = array.array;
     
     mpz_clears(body, rest, NULL);
     
@@ -235,7 +234,7 @@ void pack(void)
 
     mpz_t num;
     mpz_init(num);
-    prog_to_num(instructionsc, instructionsv, num);
+    encode_prog(num, instructionsc, instructionsv);
     
     mpz_out_str(stdout, 10, num);
     printf("\n");
@@ -245,28 +244,6 @@ void pack(void)
     mpz_clear(num);
 }
 
-void print_instruction_string(Instruction instruction)
-{
-    if(instruction.type == Inc)
-    {
-        IncrementInstruction inc = instruction.instruction.inc;
-        printf("INC %u %u\n", inc.reg, inc.jmp_lbl);
-    }
-    else if(instruction.type == Dec)
-    {
-        DecrementInstruction dec = instruction.instruction.dec;
-        printf("DEC %u %u %u\n", dec.reg, dec.jmp_lbl_not_zero, dec.jmp_lbl_zero);
-    }
-    else if(instruction.type == Halt)
-    {
-        printf("HALT\n");
-    }
-    else
-    {
-        //Unrecognised
-    }
-}
-
 void unpack(void)
 {    
     mpz_t num;
@@ -274,13 +251,14 @@ void unpack(void)
     mpz_inp_str(num, stdin, 0);
     
     Instruction* instructionsv;
-    int instructionsc = num_to_prog(&instructionsv, num);
+    int instructionsc = decode_prog(&instructionsv, num);
     
     for(int i = 0; i < instructionsc; i++)
     {
-        print_instruction_string(instructionsv[i]);
+        instruction_to_string(instructionsv[i]);
     }
     
+    free(instructionsv);
     mpz_clear(num);
 }
 
